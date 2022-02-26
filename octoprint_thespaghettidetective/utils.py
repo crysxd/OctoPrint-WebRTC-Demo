@@ -91,39 +91,19 @@ class OctoPrintSettingsUpdater:
 class SentryWrapper:
 
     def __init__(self, plugin):
-        self.sentryClient = raven.Client(
-            'https://f0356e1461124e69909600a64c361b71@sentry.thespaghettidetective.com/4',
-            release=plugin._plugin_version,
-            ignore_exceptions = [
-                'BrokenPipeError',
-                'SSLError',
-                'SSLEOFError',
-                'ConnectionResetError',
-                'ConnectionError',
-                'ConnectionRefusedError',
-                'WebSocketConnectionClosedException',
-                'ReadTimeout',
-                'OSError',
-            ]
-        )
-        self.plugin = plugin
+       return
 
     def enabled(self):
-        return self.plugin._settings.get(["sentry_opt"]) != 'out' \
-            and self.plugin.canonical_endpoint_prefix().endswith('thespaghettidetective.com')
+        return False
 
     def captureException(self, *args, **kwargs):
         _logger.exception("Exception")
-        if self.enabled():
-            self.sentryClient.captureException(*args, **kwargs)
 
     def user_context(self, *args, **kwargs):
-        if self.enabled():
-            self.sentryClient.user_context(*args, **kwargs)
+        _logger.debug("Context")
 
     def captureMessage(self, *args, **kwargs):
-        if self.enabled():
-            self.sentryClient.captureMessage(*args, **kwargs)
+        _logger.debug("Message")
 
 
 def pi_version():

@@ -36,7 +36,7 @@ class JanusConn:
         self.shutting_down = False
 
     def start(self):
-
+        _logger.debug('Starting Janus')
         if os.getenv('JANUS_SERVER', '').strip() != '':
             _logger.warning('Using an external Janus gateway. Not starting the built-in Janus gateway.')
             self.start_janus_ws()
@@ -53,16 +53,15 @@ class JanusConn:
                 with open(janus_conf_path, "wt") as fout:
                     for line in fin:
                         line = line.replace('{JANUS_HOME}', JANUS_DIR)
-                        line = line.replace('{TURN_CREDENTIAL}', self.plugin._settings.get(["auth_token"]))
+                        # line = line.replace('{TURN_CREDENTIAL}', self.plugin._settings.get(["auth_token"]))
                         fout.write(line)
 
-            video_enabled = 'true' if self.plugin._settings.get(["disable_video_streaming"]) is not True else 'false'
             streaming_conf_tmp = os.path.join(JANUS_DIR, 'etc/janus/janus.plugin.streaming.jcfg.template')
             streaming_conf_path = os.path.join(JANUS_DIR, 'etc/janus/janus.plugin.streaming.jcfg')
             with open(streaming_conf_tmp, "rt") as fin:
                 with open(streaming_conf_path, "wt") as fout:
                     for line in fin:
-                        line = line.replace('{VIDEO_ENABLED}', video_enabled)
+                        line = line.replace('{VIDEO_ENABLED}', 'true')
                         fout.write(line)
 
         def run_janus():

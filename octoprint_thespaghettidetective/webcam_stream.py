@@ -102,6 +102,7 @@ class WebcamStreamer:
         try:
             import picamera
             try:
+                _logger.info('Using PI camera')
                 using_pi_camera()
                 self.pi_camera = picamera.PiCamera()
                 self.pi_camera.framerate = 20
@@ -117,12 +118,14 @@ class WebcamStreamer:
             return
 
     def video_pipeline(self):
+        _logger.warning('PIPELINE')
         if not pi_version():
             _logger.warning('Not running on a Pi. Quiting video_pipeline.')
             return
 
         try:
-            compatible_mode = self.plugin._settings.get(["video_streaming_compatible_mode"])
+            # compatible_mode = self.plugin._settings.get(["video_streaming_compatible_mode"])
+            compatible_mode = 'auto'
 
             if compatible_mode == 'auto':
                 try:
@@ -144,6 +147,7 @@ class WebcamStreamer:
 
             # Use GStreamer for USB Camera. When it's used for Pi Camera it has problems (video is not playing. Not sure why)
             if not self.pi_camera:
+                _logger.warning('STREAMING using gstreamer')
                 if not os.path.exists('/dev/video0'):
                     _logger.warning('No camera detected. Skipping webcam streaming')
                     return
@@ -164,6 +168,7 @@ class WebcamStreamer:
 
             # Use ffmpeg for Pi Camera. When it's used for USB Camera it has problems (SPS/PPS not sent in-band?)
             else:
+                _logger.warning('STREAMING using ffmpeg')
                 self.start_ffmpeg('-re -i pipe:0 -flags:v +global_header -c:v copy', via_wrapper=False)  # script wrapper would break stdin pipe
 
                 self.webcam_server = PiCamWebServer(self.pi_camera, self.sentry)
@@ -179,10 +184,11 @@ class WebcamStreamer:
             self.sentry.captureException(tags=get_tags())
 
     def ffmpeg_from_mjpeg(self):
-
         @backoff.on_exception(backoff.expo, Exception, jitter=None, max_tries=4)
         def wait_for_webcamd(webcam_settings):
             return capture_jpeg(webcam_settings)
+
+        _logger.warning('STREAMING using compat mode')
 
         wait_for_port_to_close('127.0.0.1', 8080)  # wait for WebcamServer to be clear of port 8080
         sarge.run('sudo service webcamd start')
