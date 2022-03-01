@@ -97,10 +97,10 @@ class TheSpaghettiDetectivePlugin(
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
-__plugin_name__ = "TSD based WebRTC"
-__plugin_author__ = "Not the TSD Team"
-__plugin_url__ = "https://thespaghettidetective.com"
-__plugin_description__ = "WebRTC dummy"
+__plugin_name__ = "WebRTC Demo"
+__plugin_author__ = "crysxd"
+__plugin_url__ = "https://github.com/crysxd/OctoPrint-WebRTC-Demo"
+__plugin_description__ = "WebRTC demo based on TSD implementation"
 __plugin_license__ = "AGPLv3"
 __plugin_pythoncompat__ = ">=2.7,<4"
 

@@ -4,32 +4,32 @@
 ### Do not forget to adjust the following variables to your own plugin.
 
 # The plugin's identifier, has to be unique
-plugin_identifier = "thespaghettidetective"
+plugin_identifier = "webrtcdemo"
 
 # The plugin's python package, should be "octoprint_<plugin identifier>", has to be unique
-plugin_package = "octoprint_thespaghettidetective"
+plugin_package = "octoprint_webrtcdemo"
 
 # The plugin's human readable name. Can be overwritten within OctoPrint's internal data via __plugin_name__ in the
 # plugin module
-plugin_name = "TheSpaghettiDetective"
+plugin_name = "WebRTC Demo"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "1.8.10"
+plugin_version = "1.0.0"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
 plugin_description = """
-An essential plugin if you print remotely. Monitor and control your printer over the internet. No port-forwarding or VPN is needed. Best part? AI-based failure detection!
+WebRTC demo based on TSD implementation
 """
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
-plugin_author = "TSD Team"
+plugin_author = "crysxd"
 
 # The plugin's author's mail address.
-plugin_author_email = "admin@thespaghettidetective.com"
+plugin_author_email = "hello@octoapp.eu"
 
 # The plugin's homepage URL. Can be overwritten within OctoPrint's internal data via __plugin_url__ in the plugin module
-plugin_url = "https://thespaghettidetective.com"
+plugin_url = "https://github.com/crysxd/OctoPrint-WebRTC-Demo"
 
 # The plugin's license. Can be overwritten within OctoPrint's internal data via __plugin_license__ in the plugin module
 plugin_license = "AGPLv3"
