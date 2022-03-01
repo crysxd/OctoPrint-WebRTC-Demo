@@ -22,6 +22,8 @@ POST_STATUS_INTERVAL_SECONDS = 50.0
 class TheSpaghettiDetectivePlugin(
         octoprint.plugin.StartupPlugin,
         octoprint.plugin.ShutdownPlugin,
+        octoprint.plugin.AssetPlugin,
+        octoprint.plugin.TemplatePlugin,
         ):
 
     def __init__(self):
@@ -29,6 +31,19 @@ class TheSpaghettiDetectivePlugin(
         self.webcam_streamer = None
         self.janus = JanusConn(self)
 
+    # ~~Asset Plugin
+
+    def get_assets(self):
+        return dict(
+            js=["js/adapter.js","js/janus.js","js/webrtc_demo.js"],
+            less=["less/webrtc_demo.less"]
+        )
+
+    def get_template_configs(self):
+        return [
+            dict(type="tab", template="webrtcdemo_tab.jinja2", custom_bindings=True),
+        ]
+    
     # ~~Shutdown Plugin
 
     def on_shutdown(self):
