@@ -15,9 +15,8 @@ except ImportError:
     import Queue as queue
 
 from .utils import ExpoBackoff, get_tags, pi_version
-from .ws import WebSocketClient
 
-_logger = logging.getLogger('octoprint.plugins.thespaghettidetective')
+_logger = logging.getLogger('octoprint.plugins.webrtcdemo')
 
 JANUS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bin', 'janus')
 JANUS_SERVER = os.getenv('JANUS_SERVER', '127.0.0.1')
@@ -39,7 +38,6 @@ class JanusConn:
         _logger.debug('Starting Janus')
         if os.getenv('JANUS_SERVER', '').strip() != '':
             _logger.warning('Using an external Janus gateway. Not starting the built-in Janus gateway.')
-            self.start_janus_ws()
             return
 
         if not pi_version():
@@ -87,7 +85,6 @@ class JanusConn:
         janus_proc_thread.start()
 
         self.wait_for_janus()
-        self.start_janus_ws()
 
     def pass_to_janus(self, msg):
         if self.janus_ws and self.janus_ws.connected():
@@ -97,25 +94,6 @@ class JanusConn:
     def wait_for_janus(self):
         time.sleep(1)
         socket.socket().connect((JANUS_SERVER, JANUS_WS_PORT))
-
-    def start_janus_ws(self):
-
-        def on_close(ws):
-            self.janus_ws_backoff.more(Exception('Janus WS connection closed!'))
-            if not self.shutting_down:
-                _logger.warning('Reconnecting to Janus WS.')
-                self.start_janus_ws()
-
-        def on_message(ws, msg):
-            if self.process_janus_msg(msg):
-                self.janus_ws_backoff.reset()
-
-        self.janus_ws = WebSocketClient(
-            'ws://{}:{}/'.format(JANUS_SERVER, JANUS_WS_PORT),
-            on_ws_msg=on_message,
-            on_ws_close=on_close,
-            subprotocols=['janus-protocol'],
-            waitsecs=5)
 
     def shutdown(self):
         self.shutting_down = True
