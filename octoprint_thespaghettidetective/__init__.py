@@ -2,36 +2,13 @@
 from __future__ import absolute_import
 import logging
 import threading
-import sarge
-import json
-import re
-import os
 import sys
-import time
-import requests
 
-try:
-    import queue
-except ImportError:
-    import Queue as queue
-
-from .ws import WebSocketClient, WebSocketConnectionException
-from .commander import Commander
 from .utils import (
-    ExpoBackoff, SentryWrapper, pi_version,
-    get_tags, not_using_pi_camera, OctoPrintSettingsUpdater, server_request)
-from .lib.error_stats import error_stats
-from .print_event import PrintEventTracker
+    not_using_pi_camera, OctoPrintSettingsUpdater, server_request
+)
 from .janus import JanusConn
 from .webcam_stream import WebcamStreamer
-from .remote_status import RemoteStatus
-from .webcam_capture import JpegPoster
-from .file_download import FileDownloader
-from .tunnel import LocalTunnel
-from . import plugin_apis
-from .client_conn import ClientConn
-import zlib
-from .printer_discovery import PrinterDiscovery
 
 import octoprint.plugin
 
@@ -41,10 +18,6 @@ _logger = logging.getLogger('octoprint.plugins.thespaghettidetective')
 
 POST_STATUS_INTERVAL_SECONDS = 50.0
 
-DEFAULT_LINKED_PRINTER = {'is_pro': False}
-
-_print_event_tracker = PrintEventTracker()
-
 
 class TheSpaghettiDetectivePlugin(
         octoprint.plugin.StartupPlugin,
@@ -52,23 +25,9 @@ class TheSpaghettiDetectivePlugin(
         ):
 
     def __init__(self):
-        self.ss = None
-        self.status_posted_to_server_ts = 0
-        self.message_queue_to_server = queue.Queue(maxsize=1000)
-        self.status_update_booster = 0    # update status at higher frequency when self.status_update_booster > 0
-        self.status_update_lock = threading.RLock()
-        self.remote_status = RemoteStatus()
-        self.commander = Commander()
         self.octoprint_settings_updater = OctoPrintSettingsUpdater(self)
-        self.jpeg_poster = JpegPoster(self)
-        self.file_downloader = FileDownloader(self, _print_event_tracker)
         self.webcam_streamer = None
-        self.linked_printer = DEFAULT_LINKED_PRINTER
-        self.local_tunnel = None
         self.janus = JanusConn(self)
-        self.client_conn = ClientConn(self)
-        self.discovery = None
-        self.sentry = SentryWrapper(self)
 
     # ~~ Softwareupdate hook
 
@@ -95,8 +54,6 @@ class TheSpaghettiDetectivePlugin(
     # ~~Shutdown Plugin
 
     def on_shutdown(self):
-        if self.ss is not None:
-            self.ss.close()
         if self.janus:
             self.janus.shutdown()
         if self.webcam_streamer:
@@ -130,7 +87,7 @@ class TheSpaghettiDetectivePlugin(
         janus_thread.start()
 
         _logger.info('Starting webcam streamer')
-        self.webcam_streamer = WebcamStreamer(self, self.sentry)
+        self.webcam_streamer = WebcamStreamer(self)
         stream_thread = threading.Thread(target=self.webcam_streamer.video_pipeline)
         stream_thread.daemon = True
         stream_thread.start()

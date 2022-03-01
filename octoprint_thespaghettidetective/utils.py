@@ -87,25 +87,6 @@ class OctoPrintSettingsUpdater:
 
         return data
 
-
-class SentryWrapper:
-
-    def __init__(self, plugin):
-       return
-
-    def enabled(self):
-        return False
-
-    def captureException(self, *args, **kwargs):
-        _logger.exception("Exception")
-
-    def user_context(self, *args, **kwargs):
-        _logger.debug("Context")
-
-    def captureMessage(self, *args, **kwargs):
-        _logger.debug("Message")
-
-
 def pi_version():
     try:
         with open('/sys/firmware/devicetree/base/model', 'r') as firmware_model:

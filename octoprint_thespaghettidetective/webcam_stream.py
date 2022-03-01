@@ -86,9 +86,8 @@ def is_octolapse_enabled(plugin):
 
 class WebcamStreamer:
 
-    def __init__(self, plugin, sentry):
+    def __init__(self, plugin):
         self.plugin = plugin
-        self.sentry = sentry
 
         self.pi_camera = None
         self.webcam_server = None
@@ -134,8 +133,8 @@ class WebcamStreamer:
                         _logger.warning('Octolapse is enabled. Switching to compat mode.')
                         compatible_mode = 'always'
                         alert_queue.add_alert({'level': 'warning', 'cause': 'octolapse_compat_mode'}, self.plugin)
-                except Exception:
-                    self.sentry.captureException(tags=get_tags())
+                except Exception as e:
+                    _logger.exception('Error while enabling compat mode {}'.format(e))
 
             if compatible_mode == 'always':
                 self.ffmpeg_from_mjpeg()
@@ -161,7 +160,7 @@ class WebcamStreamer:
                     self.ffmpeg_from_mjpeg()
                     return
 
-                self.webcam_server = UsbCamWebServer(self.sentry)
+                self.webcam_server = UsbCamWebServer()
                 self.webcam_server.start()
 
                 self.start_gst_memory_guard()
@@ -171,17 +170,18 @@ class WebcamStreamer:
                 _logger.warning('STREAMING using ffmpeg')
                 self.start_ffmpeg('-re -i pipe:0 -flags:v +global_header -c:v copy', via_wrapper=False)  # script wrapper would break stdin pipe
 
-                self.webcam_server = PiCamWebServer(self.pi_camera, self.sentry)
+                self.webcam_server = PiCamWebServer(self.pi_camera)
                 self.webcam_server.start()
                 self.pi_camera.start_recording(self.ffmpeg_proc.stdin, format='h264', quality=23, intra_period=25, profile='baseline')
                 self.pi_camera.wait_recording(0)
-        except Exception:
+        except Exception as e:
             not_using_pi_camera()
             alert_queue.add_alert({'level': 'warning', 'cause': 'streaming'}, self.plugin)
 
             wait_for_port('127.0.0.1', 8080)  # Wait for Flask to start running. Otherwise we will get connection refused when trying to post to '/shutdown'
             self.restore()
-            self.sentry.captureException(tags=get_tags())
+            _logger.exception('{}'.format(e))
+
 
     def ffmpeg_from_mjpeg(self):
         @backoff.on_exception(backoff.expo, Exception, jitter=None, max_tries=4)
@@ -222,8 +222,7 @@ class WebcamStreamer:
 
                     returncode = self.ffmpeg_proc.wait()
                     msg = 'STDERR:\n{}\n'.format('\n'.join(ring_buffer))
-                    _logger.error(msg)
-                    self.sentry.captureMessage('ffmpeg quit! This should not happen. Exit code: {}'.format(returncode), tags=get_tags())
+                    _logger.error('ffmpeg quit! This should not happen. Exit code: {}'.format(returncode), tags=get_tags())
                     return
                 else:
                     ring_buffer.append(err)
@@ -265,8 +264,7 @@ class WebcamStreamer:
 
                     returncode = self.gst_proc.wait()
                     msg = 'STDERR:\n{}\n'.format('\n'.join(ring_buffer))
-                    _logger.debug(msg)
-                    self.sentry.captureMessage('GST exited un-expectedly. Exit code: {}'.format(returncode), tags=get_tags())
+                    _logger.debug('GST exited un-expectedly. Exit code: {}'.format(returncode), tags=get_tags())
                     gst_backoff.more('GST exited un-expectedly. Exit code: {}'.format(returncode))
 
                     ring_buffer = deque(maxlen=50)
@@ -320,8 +318,7 @@ class WebcamStreamer:
 
 class UsbCamWebServer:
 
-    def __init__(self, sentry):
-        self.sentry = sentry
+    def __init__(self):
         self.web_server = None
 
     def mjpeg_generator(self):
@@ -334,10 +331,10 @@ class UsbCamWebServer:
             pass
         except socket.error as err:
             if err.errno not in [errno.ECONNREFUSED, ]:
-                self.sentry.captureException(tags=get_tags())
+                _logger.exception('{}'.format(err))
             raise
-        except Exception:
-            self.sentry.captureException(tags=get_tags())
+        except Exception as e:
+            _logger.exception('{}'.format(e))
             raise
         finally:
             s.close()
@@ -370,8 +367,8 @@ class UsbCamWebServer:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             _logger.error(exc_obj)
             raise
-        except Exception:
-            self.sentry.captureException(tags=get_tags())
+        except Exception as e:
+            _logger.exception('{}'.format(e))
             raise
         finally:
             s.close()
@@ -426,8 +423,7 @@ class UsbCamWebServer:
 
 
 class PiCamWebServer:
-    def __init__(self, camera, sentry):
-        self.sentry = sentry
+    def __init__(self, camera):
         self.pi_camera = camera
         self.img_q = queue.Queue(maxsize=1)
         self.last_capture = 0
@@ -448,8 +444,8 @@ class PiCamWebServer:
                     self.last_capture = time.time()
 
                 self.img_q.put(chunk)
-        except Exception:
-            self.sentry.captureException(tags=get_tags())
+        except Exception as e:
+            _logger.exception('{}'.format(e))
             raise
 
     def mjpeg_generator(self, boundary):
@@ -465,8 +461,8 @@ class PiCamWebServer:
                 time.sleep(0.15)  # slow down mjpeg streaming so that it won't use too much cpu or bandwidth
         except GeneratorExit:
             pass
-        except Exception:
-            self.sentry.captureException(tags=get_tags())
+        except Exception as e:
+            _logger.exception('{}'.format(e))
             raise
 
     def get_snapshot(self):
