@@ -175,8 +175,8 @@ media: {
 # be used for gathering candidates, and enable or disable the
 # internal libnice debugging, if needed.
 nat: {
-	#stun_server = "stun.voip.eutelia.it"
-	#stun_port = 3478
+	stun_server = "stun.l.google.com"
+	stun_port = 19302
 	nice_debug = false
 	#full_trickle = true
 	#ice_lite = true
@@ -209,9 +209,9 @@ nat: {
 	# You enable this by specifying the address of your TURN REST API backend,
 	# the HTTP method to use (GET or POST) and, if required, the API key Janus
 	# must provide.
-	#turn_rest_api = "http://yourbackend.com/path/to/api"
-	#turn_rest_api_key = "anyapikeyyoumayhaveset"
-	#turn_rest_api_method = "GET"
+	turn_rest_api = "{TURN_API}"
+	turn_rest_api_key = "{TURN_API_KEY}"
+	turn_rest_api_method = "GET"
 
 	# You can also choose which interfaces should be explicitly used by the
 	# gateway for the purpose of ICE candidates gathering, thus excluding

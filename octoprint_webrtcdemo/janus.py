@@ -9,6 +9,8 @@ import json
 import socket
 from octoprint.util import to_unicode
 
+from .turn import _turnRegistryApi, _turnRegistryApiKey
+
 try:
     import queue
 except ImportError:
@@ -51,7 +53,8 @@ class JanusConn:
                 with open(janus_conf_path, "wt") as fout:
                     for line in fin:
                         line = line.replace('{JANUS_HOME}', JANUS_DIR)
-                        # line = line.replace('{TURN_CREDENTIAL}', self.plugin._settings.get(["auth_token"]))
+                        line = line.replace('{TURN_API}', _turnRegistryApi)
+                        line = line.replace('{TURN_API_KEY}', _turnRegistryApiKey)
                         fout.write(line)
 
             streaming_conf_tmp = os.path.join(JANUS_DIR, 'etc/janus/janus.plugin.streaming.jcfg.template')

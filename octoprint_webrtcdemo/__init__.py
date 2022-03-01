@@ -8,6 +8,7 @@ from .utils import (
     not_using_pi_camera, OctoPrintSettingsUpdater, server_request
 )
 from .janus import JanusConn
+from .turn import startTurnReigistry, stopTurnRegistry
 from .webcam_stream import WebcamStreamer
 
 import octoprint.plugin
@@ -51,7 +52,8 @@ class TheSpaghettiDetectivePlugin(
             self.janus.shutdown()
         if self.webcam_streamer:
             self.webcam_streamer.restore()
-
+        
+        stopTurnRegistry()
         not_using_pi_camera()
 
     # ~~Startup Plugin
@@ -74,7 +76,14 @@ class TheSpaghettiDetectivePlugin(
 
     def simplified_startup(self):
         _logger.info('Simplified startup')
+
+        _logger.info('Starting TURN registry server')
+        turn_thread = threading.Thread(target=startTurnReigistry)
+        turn_thread.daemon = True
+        turn_thread.start()
+
         # Janus may take a while to start, or fail to start. Put it in thread to make sure it does not block
+        _logger.info('Starting Janus server')
         janus_thread = threading.Thread(target=self.janus.start)
         janus_thread.daemon = True
         janus_thread.start()
