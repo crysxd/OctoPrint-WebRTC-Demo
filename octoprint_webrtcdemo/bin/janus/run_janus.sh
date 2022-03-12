@@ -8,7 +8,7 @@ _term() {
 
 trap _term SIGTERM
 
-LD_LIBRARY_PATH=$JANUS_DIR/lib:$JANUS_DIR/lib/janus:$LD_LIBRARY_PATH nice $JANUS_DIR/bin/janus -o --stun-server=stun.l.google.com:19302 --configs-folder=$JANUS_DIR/etc/janus &
+LD_LIBRARY_PATH=$JANUS_DIR/lib:$JANUS_DIR/lib/janus:$LD_LIBRARY_PATH nice $JANUS_DIR/bin/janus -o --configs-folder=$JANUS_DIR/etc/janus &
 
 child=$!
 wait "$child"

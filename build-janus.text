@@ -1,0 +1,67 @@
+On OctoPi:
+sudo apt-get update && sudo apt-get upgrade
+sudo apt-get install libmicrohttpd-dev libjansson-dev \
+	libssl-dev libsrtp-dev libsofia-sip-ua-dev libglib2.0-dev \
+	libopus-dev libogg-dev libcurl4-openssl-dev liblua5.3-dev \
+	libconfig-dev pkg-config libtool automake meson
+
+mkdir janus-build && cd janus-build
+
+# libnicecd 
+git clone https://gitlab.freedesktop.org/libnice/libnice
+cd libnice
+meson --prefix=/usr build && ninja -C build && sudo ninja -C build install
+cd ..
+
+# libsrtp
+wget https://github.com/cisco/libsrtp/archive/v2.2.0.tar.gz
+tar xfv v2.2.0.tar.gz
+cd libsrtp-2.2.0
+./configure --prefix=/usr --enable-openssl
+make shared_library && sudo make install
+cd ..
+
+# websockets
+git clone https://libwebsockets.org/repo/libwebsockets
+cd libwebsockets
+# If you want the stable version of libwebsockets, uncomment the next line
+# git checkout v3.2-stable
+mkdir build
+cd build
+# See https://github.com/meetecho/janus-gateway/issues/732 re: LWS_MAX_SMP
+# See https://github.com/meetecho/janus-gateway/issues/2476 re: LWS_WITHOUT_EXTENSIONS
+cmake -DLWS_MAX_SMP=1 -DLWS_WITHOUT_EXTENSIONS=0 -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_C_FLAGS="-fpic" ..
+make && sudo make install
+cd ../..
+
+# janus
+git clone https://github.com/meetecho/janus-gateway.git
+cd janus-gateway
+sh autogen.sh
+mkdir output
+mkdir output/lib
+./configure --prefix="`pwd`/output" \
+    --enable-websockets \
+    --disable-data-channels \
+    --disable-rabbitmq \
+    --disable-mqtt \
+    --disable-unix-sockets \
+    --disable-nanomsg \
+    --disable-sample-event-handler \
+    --enable-plugin-streaming \
+    --disable-plugin-echotest \
+    --disable-plugin-videocall \
+    --disable-plugin-sip \
+    --disable-plugin-nosip \
+    --disable-plugin-audiobridge \
+    --disable-plugin-videoroom \
+    --disable-plugin-voicemail \
+    --disable-plugin-textroom \
+    --disable-plugin-recordplay \
+    --disable-plugin-lua \
+    --disable-aes-gcm \
+    --enable-libsrtp2 \
+    --disable-gelf-event-handler \
+    --disable-websockets-event-handler
+
+make
