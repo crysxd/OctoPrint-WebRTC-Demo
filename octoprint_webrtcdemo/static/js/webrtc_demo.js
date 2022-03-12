@@ -444,14 +444,14 @@ function startStream() {
 			// No remote video yet
 			$('#mstream0').append('<video class="rounded centered waitingvideo" id="waitingvideo0" width="100%" height="100%" />');
 		}
-		if(mid) {
-			if(spinner[mid] == null) {
-				var target = document.getElementById('mstream0');
-				spinner[mid] = new Spinner({top:100}).spin(target);
-			} else {
-				spinner[mid].spin();
-			}
-		}
+		// if(mid) {
+		// 	if(spinner[mid] == null) {
+		// 		var target = document.getElementById('mstream0');
+		// 		spinner[mid] = new Spinner({top:100}).spin(target);
+		// 	} else {
+		// 		spinner[mid].spin();
+		// 	}
+		// }
 		dataMid = "0";
 	} else {
 		// Multistream mountpoint, create a panel for each stream
@@ -465,12 +465,12 @@ function startStream() {
 				// No remote media yet
 				$('#mstream'+mid).append('<video class="rounded centered waitingvideo" id="waitingvideo'+mid+'" width="100%" height="100%" />');
 			}
-			if(spinner[mid] == null) {
-				var target = document.getElementById('mstream'+mid);
-				spinner[mid] = new Spinner({top:100}).spin(target);
-			} else {
-				spinner[mid].spin();
-			}
+			// if(spinner[mid] == null) {
+			// 	var target = document.getElementById('mstream'+mid);
+			// 	spinner[mid] = new Spinner({top:100}).spin(target);
+			// } else {
+			// 	spinner[mid].spin();
+			// }
 			if(type === 'data')
 				dataMid = mid;
 		}
