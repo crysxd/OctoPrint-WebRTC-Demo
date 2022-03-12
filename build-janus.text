@@ -3,7 +3,7 @@ sudo apt-get update && sudo apt-get upgrade
 sudo apt-get install libmicrohttpd-dev libjansson-dev \
 	libssl-dev libsrtp-dev libsofia-sip-ua-dev libglib2.0-dev \
 	libopus-dev libogg-dev libcurl4-openssl-dev liblua5.3-dev \
-	libconfig-dev pkg-config libtool automake meson
+	libconfig-dev pkg-config libtool automake meson libusrsctp-dev 
 
 mkdir janus-build && cd janus-build
 
@@ -42,7 +42,7 @@ mkdir output
 mkdir output/lib
 ./configure --prefix="`pwd`/output" \
     --enable-websockets \
-    --disable-data-channels \
+    --enable-data-channels \
     --disable-rabbitmq \
     --disable-mqtt \
     --disable-unix-sockets \
@@ -59,7 +59,6 @@ mkdir output/lib
     --disable-plugin-textroom \
     --disable-plugin-recordplay \
     --disable-plugin-lua \
-    --disable-aes-gcm \
     --enable-libsrtp2 \
     --disable-gelf-event-handler \
     --disable-websockets-event-handler

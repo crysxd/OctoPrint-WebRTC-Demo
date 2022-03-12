@@ -16,7 +16,7 @@ _turnRegistryApi = "http://{0}:{1}/turn".format(_host, _port)
 
 def startTurnReigistry():
     _logger.info("TURN: starting TURN server registry at {0} with API key {1}".format(_turnRegistryApi, _turnRegistryApiKey))
-    _app.run(host=_host, port=_port)
+ #   _app.run(host=_host, port=_port)
 
 def stopTurnRegistry():
     return
