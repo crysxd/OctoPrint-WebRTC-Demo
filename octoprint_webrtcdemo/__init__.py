@@ -20,7 +20,8 @@ _logger = logging.getLogger('octoprint.plugins.webrtcdemo')
 POST_STATUS_INTERVAL_SECONDS = 50.0
 
 
-class TheSpaghettiDetectivePlugin(
+class WebRtcDemoPlugin(
+        octoprint.plugin.SettingsPlugin,
         octoprint.plugin.StartupPlugin,
         octoprint.plugin.ShutdownPlugin,
         octoprint.plugin.AssetPlugin,
@@ -45,6 +46,14 @@ class TheSpaghettiDetectivePlugin(
             dict(type="tab", template="webrtcdemo_tab.jinja2", custom_bindings=True),
         ]
     
+    # ~~ SettingsPlugin mixin
+
+    def get_settings_defaults(self):
+        return dict(
+            pi_cam_resolution='medium',
+            video_streaming_compatible_mode='auto',
+        )
+
     # ~~Shutdown Plugin
 
     def on_shutdown(self):
@@ -57,9 +66,6 @@ class TheSpaghettiDetectivePlugin(
         not_using_pi_camera()
 
     # ~~Startup Plugin
-
-    def on_startup(self, host, port):
-        self.octoprint_port = port if port else self._settings.getInt(["server", "port"])
 
     def on_after_startup(self):
         not_using_pi_camera()
@@ -109,7 +115,7 @@ __plugin_pythoncompat__ = ">=2.7,<4"
 
 def __plugin_load__():
     global __plugin_implementation__
-    __plugin_implementation__ = TheSpaghettiDetectivePlugin()
+    __plugin_implementation__ = WebRtcDemoPlugin()
 
     global __plugin_hooks__
     __plugin_hooks__ = {
