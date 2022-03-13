@@ -175,10 +175,10 @@ media: {
 nat: {
 	stun_server = "stun.l.google.com"
 	stun_port = 19302
-	nice_debug = true
-	full_trickle = true
+	nice_debug = false
+	#full_trickle = true
 	#ice_lite = true
-	ice_tcp = true
+	#ice_tcp = true
 
 	# In case you're deploying Janus on a server which is configured with
 	# a 1:1 NAT (e.g., Amazon EC2), you might want to also specify the public
@@ -207,9 +207,9 @@ nat: {
 	# You enable this by specifying the address of your TURN REST API backend,
 	# the HTTP method to use (GET or POST) and, if required, the API key Janus
 	# must provide.
-	#turn_rest_api = "{TURN_API}"
-	#turn_rest_api_key = "{TURN_API_KEY}"
-	#turn_rest_api_method = "GET"
+	turn_rest_api = "{TURN_API}"
+	turn_rest_api_key = "{TURN_API_KEY}"
+	turn_rest_api_method = "GET"
 
 	# You can also choose which interfaces should be explicitly used by the
 	# gateway for the purpose of ICE candidates gathering, thus excluding
